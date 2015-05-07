@@ -5,7 +5,5 @@ public class StringOption : Option<String> {
 
     constructor(longForm: String) : super(longForm, true)
 
-    override fun parse(arg: String): String {
-        return arg
-    }
+    override fun parse(arg: String): String = arg
 }

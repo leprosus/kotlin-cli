@@ -30,18 +30,16 @@ class Cli {
 
     private fun getValue<T>(option: Option<T>, default: T? = null): T? {
         val option = values.get(option.longForm)
-        if (option == null) {
-            return default
-        } else {
+
+        if (option == null) return default
+        else {
             val value = option.getValue()
 
             return if (value == null) default else value as T
         }
     }
 
-    private fun getValue<T>(shortName: Char, default: T? = null): T? {
-        return getValue(shortName.toString(), default)
-    }
+    private fun getValue<T>(shortName: Char, default: T? = null): T? = getValue(shortName.toString(), default)
 
     private fun getValue<T>(longName: String, default: T? = null): T? {
         val option = options.get(longName)
@@ -49,85 +47,45 @@ class Cli {
         return if (option == null) null else getValue(option as Option<T>, default)
     }
 
-    fun addStringOption(longForm: String, shortForm: Char): Cli {
-        return addOption(StringOption(longForm, shortForm))
-    }
+    fun addStringOption(longForm: String, shortForm: Char): Cli = addOption(StringOption(longForm, shortForm))
 
-    fun addStringOption(longForm: String): Cli {
-        return addOption(StringOption(longForm))
-    }
+    fun addStringOption(longForm: String): Cli = addOption(StringOption(longForm))
 
-    fun addIntegerOption(longForm: String, shortForm: Char): Cli {
-        return addOption(IntegerOption(longForm, shortForm))
-    }
+    fun addIntegerOption(longForm: String, shortForm: Char): Cli = addOption(IntegerOption(longForm, shortForm))
 
-    fun addIntegerOption(longForm: String): Cli {
-        return addOption(IntegerOption(longForm))
-    }
+    fun addIntegerOption(longForm: String): Cli = addOption(IntegerOption(longForm))
 
-    fun addLongOption(longForm: String, shortForm: Char): Cli {
-        return addOption(LongOption(longForm, shortForm))
-    }
+    fun addLongOption(longForm: String, shortForm: Char): Cli = addOption(LongOption(longForm, shortForm))
 
-    fun addLongOption(longForm: String): Cli {
-        return addOption(LongOption(longForm))
-    }
+    fun addLongOption(longForm: String): Cli = addOption(LongOption(longForm))
 
-    fun addDoubleOption(longForm: String, shortForm: Char): Cli {
-        return addOption(DoubleOption(longForm, shortForm))
-    }
+    fun addDoubleOption(longForm: String, shortForm: Char): Cli = addOption(DoubleOption(longForm, shortForm))
 
-    fun addDoubleOption(longForm: String): Cli {
-        return addOption(DoubleOption(longForm))
-    }
+    fun addDoubleOption(longForm: String): Cli = addOption(DoubleOption(longForm))
 
-    fun addBooleanOption(longForm: String, shortForm: Char): Cli {
-        return addOption(BooleanOption(longForm, shortForm))
-    }
+    fun addBooleanOption(longForm: String, shortForm: Char): Cli = addOption(BooleanOption(longForm, shortForm))
 
-    fun addBooleanOption(longForm: String): Cli {
-        return addOption(BooleanOption(longForm))
-    }
+    fun addBooleanOption(longForm: String): Cli = addOption(BooleanOption(longForm))
 
-    fun getStringValue(longForm: String, default: String? = null): String? {
-        return getValue(longForm, default)
-    }
+    fun getStringValue(longForm: String, default: String? = null): String? = getValue(longForm, default)
 
-    fun getStringValue(shortForm: Char, default: String? = null): String? {
-        return getValue(shortForm, default)
-    }
+    fun getStringValue(shortForm: Char, default: String? = null): String? = getValue(shortForm, default)
 
-    fun getIntegerValue(longForm: String, default: Int? = null): Int? {
-        return getValue(longForm, default)
-    }
+    fun getIntegerValue(longForm: String, default: Int? = null): Int? = getValue(longForm, default)
 
-    fun getIntegerValue(shortForm: Char, default: Int? = null): Int? {
-        return getValue(shortForm, default)
-    }
+    fun getIntegerValue(shortForm: Char, default: Int? = null): Int? = getValue(shortForm, default)
 
-    fun getLongValue(longForm: String, default: Long? = null): Long? {
-        return getValue(longForm, default)
-    }
+    fun getLongValue(longForm: String, default: Long? = null): Long? = getValue(longForm, default)
 
-    fun getLongValue(shortForm: Char, default: Long? = null): Long? {
-        return getValue(shortForm, default)
-    }
+    fun getLongValue(shortForm: Char, default: Long? = null): Long? = getValue(shortForm, default)
 
-    fun getDoubleValue(longForm: String, default: Double? = null): Double? {
-        return getValue(longForm, default)
-    }
+    fun getDoubleValue(longForm: String, default: Double? = null): Double? = getValue(longForm, default)
 
-    fun getDoubleValue(shortForm: Char, default: Double? = null): Double? {
-        return getValue(shortForm, default)
-    }
+    fun getDoubleValue(shortForm: Char, default: Double? = null): Double? = getValue(shortForm, default)
 
-    fun getBooleanValue(longForm: String, default: Boolean? = null): Boolean? {
-        return getValue(longForm, default)
-    }
+    fun getBooleanValue(longForm: String, default: Boolean? = null): Boolean? = getValue(longForm, default)
 
-    fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? {
-        return getValue(shortForm, default)
-    }
+    fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
     throws(javaClass<OptionException>())
     fun parse(args: Array<String>) {
