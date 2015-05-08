@@ -2,14 +2,23 @@ package com.evalab.core.cli
 
 import com.evalab.core.cli.exception.*
 import com.evalab.core.cli.option.*
+import com.sun.xml.internal.fastinfoset.util.StringArray
 import java.util.HashMap
 
-class Cli {
+public class Command (val name: String, val desc: String) {
+
     private val options = HashMap<String, Option<*>>(10)
     private var values = HashMap<String, Option<*>>(10)
+    private var help = StringArray(1, 10, true)
 
-    private fun addOption<T>(option: Option<T>): Cli {
+    private fun addOption<T>(option: Option<T>): Command {
         if (option.shortForm != null) options.put(option.shortForm, option)
+
+        if (!options.containsKey(option.longForm)) {
+            val helpDesc = option.getHelp()
+
+            if (helpDesc != null) help.add(helpDesc)
+        }
 
         options.put(option.longForm, option)
 
@@ -47,25 +56,15 @@ class Cli {
         return if (option == null) null else getValue(option as Option<T>, default)
     }
 
-    fun addStringOption(longForm: String, shortForm: Char): Cli = addOption(StringOption(longForm, shortForm))
+    fun addStringOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(StringOption(longForm, shortForm, help))
 
-    fun addStringOption(longForm: String): Cli = addOption(StringOption(longForm))
+    fun addIntegerOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(IntegerOption(longForm, shortForm, help))
 
-    fun addIntegerOption(longForm: String, shortForm: Char): Cli = addOption(IntegerOption(longForm, shortForm))
+    fun addLongOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(LongOption(longForm, shortForm, help))
 
-    fun addIntegerOption(longForm: String): Cli = addOption(IntegerOption(longForm))
+    fun addDoubleOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(DoubleOption(longForm, shortForm, help))
 
-    fun addLongOption(longForm: String, shortForm: Char): Cli = addOption(LongOption(longForm, shortForm))
-
-    fun addLongOption(longForm: String): Cli = addOption(LongOption(longForm))
-
-    fun addDoubleOption(longForm: String, shortForm: Char): Cli = addOption(DoubleOption(longForm, shortForm))
-
-    fun addDoubleOption(longForm: String): Cli = addOption(DoubleOption(longForm))
-
-    fun addBooleanOption(longForm: String, shortForm: Char): Cli = addOption(BooleanOption(longForm, shortForm))
-
-    fun addBooleanOption(longForm: String): Cli = addOption(BooleanOption(longForm))
+    fun addBooleanOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(BooleanOption(longForm, shortForm, help))
 
     fun getStringValue(longForm: String, default: String? = null): String? = getValue(longForm, default)
 
@@ -138,5 +137,11 @@ class Cli {
 
             position++
         }
+    }
+
+    public open fun printHelp(): String {
+        return "Description: ${this.desc}\n" +
+                "Usage: ${this.name}" + (if (help.getSize() > 0) " [options]" else "") +
+                "\n\t" + help.getArray().join("\n\t")
     }
 }
