@@ -2,10 +2,10 @@ package com.evalab.core.cli.option
 
 import com.evalab.core.cli.exception.IllegalOptionValueException
 
-public abstract class Option<T> private(val longForm: String, val withValue: Boolean, val shortForm: String? = null, val helpDesc: String? = null) {
+public abstract class Option<T> private(val longForm: String, val withValue: Boolean, val isRequired: Boolean = false, val shortForm: String? = null, val helpDesc: String? = null) {
     private var value: T = null
 
-    protected constructor(longForm: String, withValue: Boolean, shortForm: Char? = null, helpDesc: String? = null) : this(longForm, withValue, shortForm?.toString(), helpDesc)
+    protected constructor(longForm: String, withValue: Boolean, isRequired: Boolean, shortForm: Char? = null, helpDesc: String? = null) : this(longForm, withValue, isRequired, shortForm?.toString(), helpDesc)
 
     fun getHelp(): String? {
         if (helpDesc == null) return null

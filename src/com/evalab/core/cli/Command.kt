@@ -8,6 +8,7 @@ import java.util.HashMap
 public class Command (val name: String, val desc: String) {
 
     private val options = HashMap<String, Option<*>>(10)
+    private val required = HashMap<String, Option<*>>(10)
     private var values = HashMap<String, Option<*>>(10)
     private var help = StringArray(1, 10, true)
 
@@ -19,6 +20,9 @@ public class Command (val name: String, val desc: String) {
 
             if (helpDesc != null) help.add(helpDesc)
         }
+
+        if (!required.containsKey(option.longForm))
+            required.put(option.longForm, option)
 
         options.put(option.longForm, option)
 
@@ -33,6 +37,9 @@ public class Command (val name: String, val desc: String) {
 
         if (values.containsKey(longForm))
             values.remove(longForm)
+
+        if (required.containsKey(longForm))
+            required.remove(longForm)
 
         values.put(longForm, option)
     }
@@ -56,15 +63,15 @@ public class Command (val name: String, val desc: String) {
         return if (option == null) null else getValue(option as Option<T>, default)
     }
 
-    fun addStringOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(StringOption(longForm, shortForm, help))
+    fun addStringOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(StringOption(longForm, isRequired, shortForm, help))
 
-    fun addIntegerOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(IntegerOption(longForm, shortForm, help))
+    fun addIntegerOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(IntegerOption(longForm, isRequired, shortForm, help))
 
-    fun addLongOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(LongOption(longForm, shortForm, help))
+    fun addLongOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(LongOption(longForm, isRequired, shortForm, help))
 
-    fun addDoubleOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(DoubleOption(longForm, shortForm, help))
+    fun addDoubleOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(DoubleOption(longForm, isRequired, shortForm, help))
 
-    fun addBooleanOption(longForm: String, shortForm: Char? = null, help: String? = null): Command = addOption(BooleanOption(longForm, shortForm, help))
+    fun addBooleanOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(BooleanOption(longForm, isRequired, shortForm, help))
 
     fun getStringValue(longForm: String, default: String? = null): String? = getValue(longForm, default)
 
@@ -86,7 +93,11 @@ public class Command (val name: String, val desc: String) {
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
-    throws(javaClass<OptionException>())
+    throws(javaClass<UnknownOptionException>())
+    throws(javaClass<IllegalOptionValueException>())
+    throws(javaClass<UnknownSubOptionException>())
+    throws(javaClass<NotFlagException>())
+    throws(javaClass<RequiredOptionException>())
     fun parse(args: Array<String>) {
         var position = 0
         values = HashMap<String, Option<*>>(10)
@@ -136,6 +147,11 @@ public class Command (val name: String, val desc: String) {
             }
 
             position++
+        }
+
+        if (required.size() > 0) {
+            val firstKey = required.keySet().toArrayList<String>()[0]
+            throw RequiredOptionException(required.get(firstKey).longForm)
         }
     }
 
