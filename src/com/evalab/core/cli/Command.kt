@@ -21,7 +21,7 @@ public class Command (val name: String, val desc: String) {
             if (helpDesc != null) help.add(helpDesc)
         }
 
-        if (!required.containsKey(option.longForm))
+        if (option.isRequired && !required.containsKey(option.longForm))
             required.put(option.longForm, option)
 
         options.put(option.longForm, option)
@@ -37,9 +37,6 @@ public class Command (val name: String, val desc: String) {
 
         if (values.containsKey(longForm))
             values.remove(longForm)
-
-        if (required.containsKey(longForm))
-            required.remove(longForm)
 
         values.put(longForm, option)
     }
@@ -109,9 +106,11 @@ public class Command (val name: String, val desc: String) {
             if (arg.startsWith("-")) {
                 if (arg == "--") {
                     // Handle arguments end --
+
                     break
                 } else if (arg.startsWith("--")) {
                     // Handle --arg=value
+
                     val index = arg.indexOf("=")
                     if (index != -1) {
                         var key = arg.substring(2, index)
@@ -119,27 +118,21 @@ public class Command (val name: String, val desc: String) {
 
                         option = options.get(key)
 
-                        if (option == null) {
-                            throw UnknownOptionException(key)
-                        } else if (option.withValue) {
-                            if (value.length() == 0 )
-                                throw IllegalOptionValueException(option, "")
+                        if (option == null) throw UnknownOptionException(key)
+                        else if (option.withValue) {
+                            if (value.length() == 0 ) throw IllegalOptionValueException(option, "")
 
                             addValue(option, value)
-                        } else {
-                            addValue(option, "")
-                        }
+                        } else addValue(option, "")
                     }
                 } else if (arg.startsWith("-")) {
                     // Handle -abcd
+
                     for (i in 1..arg.length() - 1) {
                         option = options.get(arg.charAt(i).toString())
 
-                        if (option == null) {
-                            throw UnknownSubOptionException(arg, arg.charAt(i))
-                        } else if (option.withValue) {
-                            throw NotFlagException(arg, arg.charAt(i))
-                        }
+                        if (option == null) throw UnknownSubOptionException(arg, arg.charAt(i))
+                        else if (option.withValue) throw NotFlagException(arg, arg.charAt(i))
 
                         addValue(option, "")
                     }
@@ -149,9 +142,10 @@ public class Command (val name: String, val desc: String) {
             position++
         }
 
-        if (required.size() > 0) {
-            val firstKey = required.keySet().toArrayList<String>()[0]
-            throw RequiredOptionException(required.get(firstKey).longForm)
+        for ((key, option) in required) {
+            var longForm = option.longForm
+
+            if (!values.containsKey(longForm)) throw RequiredOptionException(longForm)
         }
     }
 
