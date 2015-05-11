@@ -9,9 +9,15 @@ public abstract class Option<T> private(val longForm: String, val withValue: Boo
 
     fun getHelp(): String? {
         if (helpDesc == null) return null
-        else return (if (shortForm != null) "-" + shortForm + " / " else "") + "--" + longForm +
-                (if (helpDesc != null) ": " + helpDesc else "") +
-                (if (isRequired) " (is required)" else "")
+        else {
+            val options = (if (shortForm != null) "-" + shortForm + ", " else "") + "--" + longForm + ":";
+            val tabs = 4 - (options.length() / 4).toInt()
+
+
+            return  options + "\t".repeat(tabs) +
+                    (helpDesc ?: "") +
+                    (if (isRequired) " (is required)" else "")
+        }
     }
 
     throws(javaClass<IllegalOptionValueException>())

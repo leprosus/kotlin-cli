@@ -13,7 +13,7 @@ public class Command (val name: String, val desc: String) {
     private var help = StringArray(1, 10, true)
 
     private fun addOption<T>(option: Option<T>): Command {
-        if (option.shortForm != null) options.put(option.shortForm, option)
+        if (option.shortForm != null) options.put("-" + option.shortForm, option)
 
         if (!options.containsKey(option.longForm)) {
             val helpDesc = option.getHelp()
@@ -24,7 +24,7 @@ public class Command (val name: String, val desc: String) {
         if (option.isRequired && !required.containsKey(option.longForm))
             required.put(option.longForm, option)
 
-        options.put(option.longForm, option)
+        options.put("--" + option.longForm, option)
 
         return this
     }
@@ -55,7 +55,7 @@ public class Command (val name: String, val desc: String) {
     private fun getValue<T>(shortName: Char, default: T? = null): T? = getValue(shortName.toString(), default)
 
     private fun getValue<T>(longName: String, default: T? = null): T? {
-        val option = options.get(longName)
+        val option = options.get("--" + longName)
 
         return if (option == null) null else getValue(option as Option<T>, default)
     }
@@ -116,7 +116,7 @@ public class Command (val name: String, val desc: String) {
                         var key = arg.substring(2, index)
                         var value = arg.substring(index + 1)
 
-                        option = options.get(key)
+                        option = options.get("--" + key)
 
                         if (option == null) throw UnknownOptionException(key)
                         else if (option.withValue) {
@@ -129,7 +129,7 @@ public class Command (val name: String, val desc: String) {
                     // Handle -abcd
 
                     for (i in 1..arg.length() - 1) {
-                        option = options.get(arg.charAt(i).toString())
+                        option = options.get("-" + arg.charAt(i).toString())
 
                         if (option == null) throw UnknownSubOptionException(arg, arg.charAt(i))
                         else if (option.withValue) throw NotFlagException(arg, arg.charAt(i))
@@ -142,16 +142,46 @@ public class Command (val name: String, val desc: String) {
             position++
         }
 
-        for ((key, option) in required) {
+        for ((key: String, option: Option<*>) in required) {
             var longForm = option.longForm
 
             if (!values.containsKey(longForm)) throw RequiredOptionException(longForm)
         }
     }
 
-    public open fun printHelp(): String {
-        return "Description: ${this.desc}\n" +
-                "Usage: ${this.name}" + (if (help.getSize() > 0) " [options]" else "") +
-                "\n\t" + help.getArray().join("\n\t")
+    protected fun getUsage(): String {
+        val formats = StringArray(1, 10, true)
+
+        var counter = 1
+        for ((key: String, option: Option<*>) in options)
+            if (key.startsWith("--")) {
+                var format: String
+
+                if (option.shortForm == null) format = "--" + option.longForm + ""
+                else format = "{--" + option.longForm + ", -" + option.shortForm + "}"
+
+                if (option.withValue) format += "=value" + counter++
+
+                if (!option.isRequired) format = "[" + format + "]"
+
+                formats.add(format)
+            }
+
+        return "Usage: ${this.name} " +
+                if (formats.getSize() > 0) formats.getArray().join(" ") else ""
+    }
+
+    protected fun getDescription(): String {
+        return "Description: ${this.desc}"
+    }
+
+    protected fun getOptionsDescription(): String {
+        return if (help.getSize() > 0) "Options:" + "\n\t" + help.getArray().join("\n\t") else ""
+    }
+
+    public open fun getHelp(): String {
+        return getUsage() + "\n" +
+                getDescription() + "\n" +
+                getOptionsDescription()
     }
 }
