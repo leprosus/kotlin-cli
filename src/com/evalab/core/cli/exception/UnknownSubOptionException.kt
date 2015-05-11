@@ -1,3 +1,3 @@
 package com.evalab.core.cli.exception
 
-public class UnknownSubOptionException(optionLong: String, val subOption: Char) : UnknownOptionException(optionLong, "Unknown option: '" + subOption + "' in '" + optionLong + "'")
+public class UnknownSubOptionException(options: String, val subOption: Char) : UnknownOptionException(options, "Unknown option: '" + subOption + "' in '" + options + "'")

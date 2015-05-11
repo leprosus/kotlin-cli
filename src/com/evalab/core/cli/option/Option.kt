@@ -1,9 +1,23 @@
 package com.evalab.core.cli.option
 
+import com.evalab.core.cli.exception.IllegalOptionNameException
 import com.evalab.core.cli.exception.IllegalOptionValueException
+import java.util.regex.Pattern
 
 public abstract class Option<T> private(val longForm: String, val withValue: Boolean, val isRequired: Boolean = false, val shortForm: String? = null, val helpDesc: String? = null) {
     private var value: T = null
+    val longFormPattern = Pattern.compile("^([a-z](?:[a-z0-9_\\-]*[a-z0-9])?)$", Pattern.CASE_INSENSITIVE)
+    val shortFormPattern = Pattern.compile("^[a-z]$", Pattern.CASE_INSENSITIVE)
+
+    init {
+        val longFormMatcher = longFormPattern.matcher(longForm)
+        if (!longFormMatcher.matches()) throw IllegalOptionNameException(this)
+
+        if (shortForm != null) {
+            val shortFormMatcher = shortFormPattern.matcher(shortForm)
+            if (!shortFormMatcher.matches()) throw IllegalOptionNameException(this)
+        }
+    }
 
     protected constructor(longForm: String, withValue: Boolean, isRequired: Boolean, shortForm: Char? = null, helpDesc: String? = null) : this(longForm, withValue, isRequired, shortForm?.toString(), helpDesc)
 
@@ -14,7 +28,7 @@ public abstract class Option<T> private(val longForm: String, val withValue: Boo
             val tabs = 4 - (options.length() / 4).toInt()
 
 
-            return  options + "\t".repeat(tabs) +
+            return options + "\t".repeat(tabs) +
                     (helpDesc ?: "") +
                     (if (isRequired) " (is required)" else "")
         }
@@ -34,5 +48,9 @@ public abstract class Option<T> private(val longForm: String, val withValue: Boo
     throws(javaClass<IllegalOptionValueException>())
     protected open fun parse(arg: String): T {
         return null
+    }
+
+    override fun toString(): String {
+        return (if (shortForm != null) "-" + shortForm + ", " else "") + "--" + longForm
     }
 }
