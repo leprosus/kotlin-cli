@@ -9,7 +9,9 @@ public abstract class Option<T> private(val longForm: String, val withValue: Boo
 
     fun getHelp(): String? {
         if (helpDesc == null) return null
-        else return (if (shortForm != null) "-" + shortForm + " / " else "") + "--" + longForm + ": " + helpDesc
+        else return (if (shortForm != null) "-" + shortForm + " / " else "") + "--" + longForm +
+                (if (helpDesc != null) ": " + helpDesc else "") +
+                (if (isRequired) " (is required)" else "")
     }
 
     throws(javaClass<IllegalOptionValueException>())
