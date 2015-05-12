@@ -1,3 +1,5 @@
 package com.evalab.core.cli.exception
 
-public open class RequiredOptionException(val optionLong: String, description: String = "Option '" + optionLong + "' is required") : OptionException(description)
+import com.evalab.core.cli.option.Option
+
+public class RequiredOptionException(val option: Option<*>, description: String = "Option " + option.toString() + " is required ") : OptionException(description)
