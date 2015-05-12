@@ -99,43 +99,17 @@ public class Command (val name: String, val desc: String) {
         var position = 0
         values = HashMap<String, Option<*>>(10)
 
-        val option: Option<*>?
         while (position < args.size()) {
             var arg = args[position]
 
             if (arg.startsWith("-")) {
-                if (arg == "--") {
-                    // Handle arguments end --
+                if (arg == "--") break
+                else if (arg.startsWith("--")) handleLongOption(arg)
+                else if (arg.startsWith("-")) {
+                    val next = if (position < args.size() - 1) args[position + 1] else null
 
-                    break
-                } else if (arg.startsWith("--")) {
-                    // Handle --arg=value
-
-                    val index = arg.indexOf("=")
-                    if (index != -1) {
-                        var key = arg.substring(2, index)
-                        var value = arg.substring(index + 1)
-
-                        option = options.get("--" + key)
-
-                        if (option == null) throw UnknownOptionException(key)
-                        else if (option.withValue) {
-                            if (value.length() == 0 ) throw IllegalOptionValueException(option, "")
-
-                            addValue(option, value)
-                        } else addValue(option, "")
-                    }
-                } else if (arg.startsWith("-")) {
-                    // Handle -abcd
-
-                    for (i in 1..arg.length() - 1) {
-                        option = options.get("-" + arg.charAt(i).toString())
-
-                        if (option == null) throw UnknownSubOptionException(arg, arg.charAt(i))
-                        else if (option.withValue) throw NotFlagException(arg, arg.charAt(i))
-
-                        addValue(option, "")
-                    }
+                    if (arg.length() == 2 && next != null && !next.startsWith("-")) handleShortOption(arg, next)
+                    else handleFlags(arg)
                 }
             }
 
@@ -145,7 +119,48 @@ public class Command (val name: String, val desc: String) {
         for ((key: String, option: Option<*>) in required) {
             var longForm = option.longForm
 
-            if (!values.containsKey(longForm)) throw RequiredOptionException(longForm)
+            if (!values.containsKey(longForm)) throw RequiredOptionException(option)
+        }
+    }
+
+    protected fun handleLongOption(line: String) {
+        val index = line.indexOf("=")
+
+        var key: String
+        var value: String?
+
+        if (index != -1) {
+            key = line.substring(2, index)
+            value = line.substring(index + 1)
+        } else {
+            key = line.substring(2)
+            value = null
+        }
+
+        val option = options.get("--" + key)
+
+        if (option == null) throw UnknownOptionException(key)
+        else if (option.withValue && value != null) addValue(option, value!!)
+        else addValue(option, "")
+    }
+
+    protected fun handleShortOption(key: String, value: String) {
+        val key = key.substring(1)
+
+        val option = options.get("-" + key)
+
+        if (option == null) throw UnknownOptionException(key)
+        else addValue(option, value)
+    }
+
+    protected fun handleFlags(line: String) {
+        for (i in 1..line.length() - 1) {
+            val option = options.get("-" + line.charAt(i).toString())
+
+            if (option == null) throw UnknownSubOptionException(line, line.charAt(i))
+            else if (option.withValue) throw NotFlagException(line, option)
+
+            addValue(option, "")
         }
     }
 
@@ -168,7 +183,7 @@ public class Command (val name: String, val desc: String) {
             }
 
         return "Usage: ${this.name} " +
-                if (formats.getSize() > 0) formats.getArray().join(" ") else ""
+                if (formats.getSize() > 0) formats.join(" ") else ""
     }
 
     protected fun getDescription(): String {
@@ -176,12 +191,28 @@ public class Command (val name: String, val desc: String) {
     }
 
     protected fun getOptionsDescription(): String {
-        return if (help.getSize() > 0) "Options:" + "\n\t" + help.getArray().join("\n\t") else ""
+        return if (help.getSize() > 0) "Options:" + "\n\t" + help.join("\n\t") else ""
     }
 
     public open fun getHelp(): String {
         return getUsage() + "\n" +
                 getDescription() + "\n" +
                 getOptionsDescription()
+    }
+
+    protected fun StringArray.join(seporator: String): String {
+        var result = ""
+
+        val size = this.getSize()
+
+        if (size > 0) {
+            result += this.get(0)
+
+            if (size > 1)
+                for (index in 1..(size - 1))
+                    result += seporator + this.get(index)
+        }
+
+        return result
     }
 }
