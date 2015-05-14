@@ -5,7 +5,7 @@ import com.evalab.core.cli.option.*
 import com.sun.xml.internal.fastinfoset.util.StringArray
 import java.util.HashMap
 
-public class Command (val name: String, val desc: String) {
+public open class Command (val name: String, val desc: String) {
 
     private val options = HashMap<String, Option<*>>(10)
     private val required = HashMap<String, Option<*>>(10)
@@ -41,23 +41,26 @@ public class Command (val name: String, val desc: String) {
         values.put(longForm, option)
     }
 
+    suppress("UNCHECKED_CAST")
     private fun getValue<T>(option: Option<T>, default: T? = null): T? {
-        val option = values.get(option.longForm)
+        val found = values.get(option.longForm)
+        if (found == null) return default
+        else return found.getValue() as T ?: default
 
-        if (option == null) return default
-        else {
-            val value = option.getValue()
-
-            return if (value == null) default else value as T
-        }
     }
 
-    private fun getValue<T>(shortName: Char, default: T? = null): T? = getValue(shortName.toString(), default)
+    suppress("UNCHECKED_CAST")
+    private fun getValue<T>(shortName: Char, default: T? = null): T? {
+        val option = options.get("-" + shortName.toString()) as Option<T>?
 
+        return if (option == null) null else getValue(option, default)
+    }
+
+    suppress("UNCHECKED_CAST")
     private fun getValue<T>(longName: String, default: T? = null): T? {
-        val option = options.get("--" + longName)
+        val option = options.get("--" + longName) as Option<T>?
 
-        return if (option == null) null else getValue(option as Option<T>, default)
+        return if (option == null) null else getValue(option, default)
     }
 
     fun addStringOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(StringOption(longForm, isRequired, shortForm, help))
@@ -145,11 +148,9 @@ public class Command (val name: String, val desc: String) {
     }
 
     protected fun handleShortOption(key: String, value: String) {
-        val key = key.substring(1)
+        val option = options.get(key)
 
-        val option = options.get("-" + key)
-
-        if (option == null) throw UnknownOptionException(key)
+        if (option == null) throw UnknownOptionException(key.substring(1))
         else addValue(option, value)
     }
 

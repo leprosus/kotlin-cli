@@ -4,8 +4,15 @@ import com.evalab.core.cli.exception.IllegalOptionNameException
 import com.evalab.core.cli.exception.IllegalOptionValueException
 import java.util.regex.Pattern
 
-public abstract class Option<T> private(val longForm: String, val withValue: Boolean, val isRequired: Boolean = false, val shortForm: String? = null, val helpDesc: String? = null) {
+public abstract class Option<T> private(
+        val longForm: String,
+        val withValue: Boolean,
+        val isRequired: Boolean = false,
+        val shortForm: String? = null,
+        val helpDesc: String? = null
+) {
     private var value: T = null
+
     val longFormPattern = Pattern.compile("^([a-z](?:[a-z0-9_\\-]*[a-z0-9])?)$", Pattern.CASE_INSENSITIVE)
     val shortFormPattern = Pattern.compile("^[a-z]$", Pattern.CASE_INSENSITIVE)
 
@@ -28,8 +35,7 @@ public abstract class Option<T> private(val longForm: String, val withValue: Boo
             val tabs = 4 - (options.length() / 4).toInt()
 
 
-            return options + "\t".repeat(tabs) +
-                    (helpDesc ?: "") +
+            return options + "\t".repeat(tabs) + helpDesc +
                     (if (isRequired) " (is required)" else "")
         }
     }
