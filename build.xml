@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Kotlin Cli" default="build">
+    <property name="kotlin.lib" location="lib"/>
+    <property name="build-path" location="build"/>
+
+    <typedef resource="org/jetbrains/kotlin/ant/antlib.xml" classpath="${kotlin.lib}/kotlin-ant.jar"/>
+
+    <target name="build">
+        <delete dir="${build-path}" failonerror="false"/>
+        <mkdir dir="${build-path}"/>
+
+        <kotlinc output="${build-path}/kotlin-cli.jar">
+            <src path="src"/>
+        </kotlinc>
+    </target>
+</project>
