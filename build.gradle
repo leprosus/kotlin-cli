@@ -1,7 +1,8 @@
+apply plugin: "kotlin"
+apply plugin: 'maven'
+
 group 'com.evalab.kotlin-cli'
 version '1.0-SNAPSHOT'
-
-apply plugin: "kotlin"
 
 sourceCompatibility = 1.8
 
