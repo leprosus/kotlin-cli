@@ -40,7 +40,7 @@ public abstract class Option<T> private(
         }
     }
 
-    throws(javaClass<IllegalOptionValueException>())
+    throws(IllegalOptionValueException::class)
     fun setValue(arg: String) {
         if (this.withValue && arg == "") throw IllegalOptionValueException(this, "")
 
@@ -51,7 +51,7 @@ public abstract class Option<T> private(
         return value
     }
 
-    throws(javaClass<IllegalOptionValueException>())
+    throws(IllegalOptionValueException::class)
     protected open fun parse(arg: String): T {
         return null
     }

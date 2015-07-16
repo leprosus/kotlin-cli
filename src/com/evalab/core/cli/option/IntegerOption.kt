@@ -8,7 +8,7 @@ public class IntegerOption : Option<Int> {
             isRequired: Boolean,
             shortForm: Char? = null, helpDesc: String? = null) : super(longForm, true, isRequired, shortForm, helpDesc)
 
-    throws(javaClass<IllegalOptionValueException>())
+    throws(IllegalOptionValueException::class)
     override fun parse(arg: String): Int {
         try {
             return arg.toInt()
