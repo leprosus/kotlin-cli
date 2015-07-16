@@ -1,0 +1,35 @@
+group 'com.evalab.kotlin-cli'
+version '1.0-SNAPSHOT'
+
+apply plugin: "kotlin"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/'
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "junit:junit:4.11"
+}
+
+buildscript {
+    ext.kotlin_version = '0.12.613'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
