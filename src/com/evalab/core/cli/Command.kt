@@ -29,7 +29,7 @@ public open class Command (val name: String, val desc: String) {
         return this
     }
 
-    throws(javaClass<IllegalOptionValueException>())
+    throws(IllegalOptionValueException::class)
     private fun addValue<T>(option: Option<T>, valueArg: String) {
         val longForm = option.longForm
 
@@ -93,11 +93,11 @@ public open class Command (val name: String, val desc: String) {
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
-    throws(javaClass<UnknownOptionException>())
-    throws(javaClass<IllegalOptionValueException>())
-    throws(javaClass<UnknownSubOptionException>())
-    throws(javaClass<NotFlagException>())
-    throws(javaClass<RequiredOptionException>())
+    throws(UnknownOptionException::class)
+    throws(IllegalOptionValueException::class)
+    throws(UnknownSubOptionException::class)
+    throws(NotFlagException::class)
+    throws(RequiredOptionException::class)
     fun parse(args: Array<String>) {
         var position = 0
         values = HashMap<String, Option<*>>(10)

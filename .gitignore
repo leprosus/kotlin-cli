@@ -2,3 +2,10 @@
 .idea/
 .DS_Store
 todo.txt
+
+# gradle
+gradle
+.gradle
+gradlew
+gradlew.bat
+build/classes
