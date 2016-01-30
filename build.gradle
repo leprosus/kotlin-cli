@@ -1,16 +1,12 @@
 apply plugin: "kotlin"
-apply plugin: 'maven'
+apply plugin: "maven"
+apply plugin: "idea"
 
 group 'com.evalab.kotlin-cli'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 sourceSets {
@@ -19,11 +15,11 @@ sourceSets {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile "junit:junit:4.11"
+    testCompile "junit:junit:4.12"
 }
 
 buildscript {
-    ext.kotlin_version = '0.12.613'
+    ext.kotlin_version = '1.0.0-beta-4589'
 
     repositories {
         mavenCentral()

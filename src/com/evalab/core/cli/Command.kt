@@ -3,7 +3,7 @@ package com.evalab.core.cli
 import com.evalab.core.cli.exception.*
 import com.evalab.core.cli.option.*
 import com.sun.xml.internal.fastinfoset.util.StringArray
-import java.util.HashMap
+import java.util.*
 
 public open class Command (val name: String, val desc: String) {
 
@@ -12,7 +12,7 @@ public open class Command (val name: String, val desc: String) {
     private var values = HashMap<String, Option<*>>(10)
     private var help = StringArray(1, 10, true)
 
-    private fun addOption<T>(option: Option<T>): Command {
+    private fun <T> addOption(option: Option<T>): Command {
         if (option.shortForm != null) options.put("-" + option.shortForm, option)
 
         if (!options.containsKey(option.longForm)) {
@@ -29,8 +29,8 @@ public open class Command (val name: String, val desc: String) {
         return this
     }
 
-    throws(IllegalOptionValueException::class)
-    private fun addValue<T>(option: Option<T>, valueArg: String) {
+    @Throws(IllegalOptionValueException::class)
+    private fun <T> addValue(option: Option<T>, valueArg: String) {
         val longForm = option.longForm
 
         option.setValue(valueArg)
@@ -41,23 +41,23 @@ public open class Command (val name: String, val desc: String) {
         values.put(longForm, option)
     }
 
-    suppress("UNCHECKED_CAST")
-    private fun getValue<T>(option: Option<T>, default: T? = null): T? {
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getValue(option: Option<T>, default: T? = null): T? {
         val found = values.get(option.longForm)
         if (found == null) return default
         else return found.getValue() as T ?: default
 
     }
 
-    suppress("UNCHECKED_CAST")
-    private fun getValue<T>(shortName: Char, default: T? = null): T? {
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getValue(shortName: Char, default: T? = null): T? {
         val option = options.get("-" + shortName.toString()) as Option<T>?
 
         return if (option == null) null else getValue(option, default)
     }
 
-    suppress("UNCHECKED_CAST")
-    private fun getValue<T>(longName: String, default: T? = null): T? {
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getValue(longName: String, default: T? = null): T? {
         val option = options.get("--" + longName) as Option<T>?
 
         return if (option == null) null else getValue(option, default)
@@ -93,25 +93,25 @@ public open class Command (val name: String, val desc: String) {
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
-    throws(UnknownOptionException::class)
-    throws(IllegalOptionValueException::class)
-    throws(UnknownSubOptionException::class)
-    throws(NotFlagException::class)
-    throws(RequiredOptionException::class)
+    @Throws(UnknownOptionException::class,
+            IllegalOptionValueException::class,
+            UnknownSubOptionException::class,
+            NotFlagException::class,
+            RequiredOptionException::class)
     fun parse(args: Array<String>) {
         var position = 0
         values = HashMap<String, Option<*>>(10)
 
-        while (position < args.size()) {
+        while (position < args.size) {
             var arg = args[position]
 
             if (arg.startsWith("-")) {
                 if (arg == "--") break
                 else if (arg.startsWith("--")) handleLongOption(arg)
                 else if (arg.startsWith("-")) {
-                    val next = if (position < args.size() - 1) args[position + 1] else null
+                    val next = if (position < args.size - 1) args[position + 1] else null
 
-                    if (arg.length() == 2 && next != null && !next.startsWith("-")) handleShortOption(arg, next)
+                    if (arg.length == 2 && next != null && !next.startsWith("-")) handleShortOption(arg, next)
                     else handleFlags(arg)
                 }
             }
@@ -143,7 +143,7 @@ public open class Command (val name: String, val desc: String) {
         val option = options.get("--" + key)
 
         if (option == null) throw UnknownOptionException(key)
-        else if (option.withValue && value != null) addValue(option, value!!)
+        else if (option.withValue && value != null) addValue(option, value)
         else addValue(option, "")
     }
 
@@ -155,10 +155,10 @@ public open class Command (val name: String, val desc: String) {
     }
 
     protected fun handleFlags(line: String) {
-        for (i in 1..line.length() - 1) {
-            val option = options.get("-" + line.charAt(i).toString())
+        for (i in 1..line.length - 1) {
+            val option = options.get("-" + line[i].toString())
 
-            if (option == null) throw UnknownSubOptionException(line, line.charAt(i))
+            if (option == null) throw UnknownSubOptionException(line, line[i])
             else if (option.withValue) throw NotFlagException(line, option)
 
             addValue(option, "")

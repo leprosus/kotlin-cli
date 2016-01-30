@@ -11,7 +11,7 @@ public class DoubleOption : Option<Double> {
             helpDesc: String? = null
     ) : super(longForm, true, isRequired, shortForm, helpDesc)
 
-    throws(IllegalOptionValueException::class)
+    @Throws(IllegalOptionValueException::class)
     override fun parse(arg: String): Double {
         try {
             return arg.toDouble()

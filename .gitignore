@@ -1,11 +1,11 @@
 *.iml
+*.ipr
+*.iws
 .idea/
 .DS_Store
-todo.txt
+build/
 
 # gradle
-gradle
 .gradle
 gradlew
 gradlew.bat
-build/classes
