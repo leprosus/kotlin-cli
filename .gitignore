@@ -4,6 +4,8 @@
 .idea/
 .DS_Store
 build/
+out/
+todo.txt
 
 # gradle
 .gradle
