@@ -101,6 +101,10 @@ public open class Command (val name: String, val desc: String) {
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
+    fun getFlag(longForm: String) = getBooleanValue(longForm, false)!!
+
+    fun getFlag(shortForm: Char) = getBooleanValue(shortForm, false)!!
+
     fun getListValue(longForm: String, default: List<String>? = null): List<String>? = getValue(longForm, default)
 
     @Throws(UnknownOptionException::class,
@@ -129,8 +133,8 @@ public open class Command (val name: String, val desc: String) {
             position++
         }
 
-        if (greedyListOption != null && position < args.size) {
-            addValue(greedyListOption!!, args.drop(position).joinToString(","))
+        if (greedyListOption != null && position+1 < args.size) {
+            addValue(greedyListOption!!, args.drop(position+1).joinToString(","))
         }
 
         for ((key: String, option: Option<*>) in options) {
