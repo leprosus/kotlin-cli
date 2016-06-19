@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     }
 
     val debug = command.getBooleanValue("debug", false)
-    val verbose = command.getBooleanValue("verbose", false)
+    val verbose = command.getFlag("verbose")
     val size = command.getIntegerValue("size", 0)
     val fraction = command.getDoubleValue("fraction", 0.0)
     val name = command.getStringValue("name")

@@ -8,9 +8,9 @@ import java.util.*
 public open class Command (val name: String, val desc: String) {
 
     private val options = HashMap<String, Option<*>>(10)
-    private val required = HashMap<String, Option<*>>(10)
     private var values = HashMap<String, Option<*>>(10)
     private var help = StringArray(1, 10, true)
+    private var greedyListOption: GreedyListOption? = null
 
     private fun <T> addOption(option: Option<T>): Command {
         if (option.shortForm != null) options.put("-" + option.shortForm, option)
@@ -20,9 +20,6 @@ public open class Command (val name: String, val desc: String) {
 
             if (helpDesc != null) help.add(helpDesc)
         }
-
-        if (option.isRequired && !required.containsKey(option.longForm))
-            required.put(option.longForm, option)
 
         options.put("--" + option.longForm, option)
 
@@ -73,6 +70,17 @@ public open class Command (val name: String, val desc: String) {
 
     fun addBooleanOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(BooleanOption(longForm, isRequired, shortForm, help))
 
+    fun addGreedyListOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command {
+        val tmp = GreedyListOption(longForm, isRequired, shortForm, help)
+        if (greedyListOption == null) {
+            addOption(tmp)
+            greedyListOption = tmp
+        } else {
+            throw MultipleGreedyOptionException(tmp)
+        }
+        return this
+    }
+
     fun getStringValue(longForm: String, default: String? = null): String? = getValue(longForm, default)
 
     fun getStringValue(shortForm: Char, default: String? = null): String? = getValue(shortForm, default)
@@ -92,6 +100,12 @@ public open class Command (val name: String, val desc: String) {
     fun getBooleanValue(longForm: String, default: Boolean? = null): Boolean? = getValue(longForm, default)
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
+
+    fun getFlag(longForm: String) = getBooleanValue(longForm, false)!!
+
+    fun getFlag(shortForm: Char) = getBooleanValue(shortForm, false)!!
+
+    fun getListValue(longForm: String, default: List<String>? = null): List<String>? = getValue(longForm, default)
 
     @Throws(UnknownOptionException::class,
             IllegalOptionValueException::class,
@@ -119,10 +133,15 @@ public open class Command (val name: String, val desc: String) {
             position++
         }
 
-        for ((key: String, option: Option<*>) in required) {
+        if (greedyListOption != null && position+1 < args.size) {
+            addValue(greedyListOption!!, args.drop(position+1).joinToString(","))
+        }
+
+        for ((key: String, option: Option<*>) in options) {
             var longForm = option.longForm
 
-            if (!values.containsKey(longForm)) throw RequiredOptionException(option)
+            if (!values.containsKey(longForm) && option.isRequired)
+                    throw RequiredOptionException(option)
         }
     }
 
