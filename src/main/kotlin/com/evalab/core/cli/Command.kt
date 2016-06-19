@@ -105,6 +105,8 @@ public open class Command (val name: String, val desc: String) {
 
     fun getBooleanValue(shortForm: Char, default: Boolean? = null): Boolean? = getValue(shortForm, default)
 
+    fun getListValue(longForm: String, default: List<String>? = null): List<String>? = getValue(longForm, default)
+
     @Throws(UnknownOptionException::class,
             IllegalOptionValueException::class,
             UnknownSubOptionException::class,
