@@ -8,7 +8,6 @@ import java.util.*
 public open class Command (val name: String, val desc: String) {
 
     private val options = HashMap<String, Option<*>>(10)
-    private val required = HashMap<String, Option<*>>(10)
     private var values = HashMap<String, Option<*>>(10)
     private var help = StringArray(1, 10, true)
     private var greedyListOption: GreedyListOption? = null
@@ -21,9 +20,6 @@ public open class Command (val name: String, val desc: String) {
 
             if (helpDesc != null) help.add(helpDesc)
         }
-
-        if (option.isRequired && !required.containsKey(option.longForm))
-            required.put(option.longForm, option)
 
         options.put("--" + option.longForm, option)
 
@@ -137,10 +133,11 @@ public open class Command (val name: String, val desc: String) {
             addValue(greedyListOption!!, args.drop(position).joinToString(","))
         }
 
-        for ((key: String, option: Option<*>) in required) {
+        for ((key: String, option: Option<*>) in options) {
             var longForm = option.longForm
 
-            if (!values.containsKey(longForm)) throw RequiredOptionException(option)
+            if (!values.containsKey(longForm) && option.isRequired)
+                    throw RequiredOptionException(option)
         }
     }
 
