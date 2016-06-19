@@ -11,6 +11,7 @@ public open class Command (val name: String, val desc: String) {
     private val required = HashMap<String, Option<*>>(10)
     private var values = HashMap<String, Option<*>>(10)
     private var help = StringArray(1, 10, true)
+    private var greedyListOption: GreedyListOption? = null
 
     private fun <T> addOption(option: Option<T>): Command {
         if (option.shortForm != null) options.put("-" + option.shortForm, option)
@@ -73,6 +74,17 @@ public open class Command (val name: String, val desc: String) {
 
     fun addBooleanOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command = addOption(BooleanOption(longForm, isRequired, shortForm, help))
 
+    fun addGreedyListOption(longForm: String, isRequired: Boolean, shortForm: Char? = null, help: String? = null): Command {
+        val tmp = GreedyListOption(longForm, isRequired, shortForm, help)
+        if (greedyListOption == null) {
+            addOption(tmp)
+            greedyListOption = tmp
+        } else {
+            throw MultipleGreedyOptionException(tmp)
+        }
+        return this
+    }
+
     fun getStringValue(longForm: String, default: String? = null): String? = getValue(longForm, default)
 
     fun getStringValue(shortForm: Char, default: String? = null): String? = getValue(shortForm, default)
@@ -117,6 +129,10 @@ public open class Command (val name: String, val desc: String) {
             }
 
             position++
+        }
+
+        if (greedyListOption != null && position < args.size) {
+            addValue(greedyListOption!!, args.drop(position).joinToString(","))
         }
 
         for ((key: String, option: Option<*>) in required) {
