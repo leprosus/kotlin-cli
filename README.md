@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
     try {
         command.parse(args)
     } catch (e: OptionException) {
-        println(e.getMessage())
+        println(e.message)
         println(command.getHelp())
         System.exit(2)
     }
