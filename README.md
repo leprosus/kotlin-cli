@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     val verbose = command.getBooleanValue("verbose", false)
     val size = command.getIntegerValue("size", 0)
     val fraction = command.getDoubleValue("fraction", 0.0)
-    val name = command.getStringValue("name")
+    val name = command.getStringValue("name", "default value")
 
     println("debug: " + debug)
     println("verbose: " + verbose)
